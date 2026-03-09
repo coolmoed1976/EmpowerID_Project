@@ -1,0 +1,91 @@
+@{
+    ViewBag.Title = "Layout Beispiel 1: Formulare und Spalten";
+}
+
+<div class="eid-container person-details">
+    <h1>@ViewBag.Title</h1>
+    <p>Dieses Beispiel zeigt, wie EmpowerID Formularelemente und das Grid-System für Spalten nutzt.</p>
+
+    <div class="eid-form">
+        <section class="basic-info">
+            <h2>Persönliche Daten (Zeile 1: 3-Spalten Layout)</h2>
+            <!-- threecol Klasse teilt die Breite in 3 Spalten (ca. 33% je Feld) -->
+            <div class="row">
+                <div class="eid-form-field threecol">
+                    <label>
+                        <span>@Html.EidResx("FirstName")</span>
+                        <input type="text" data-bind="value: firstName" class="form-control" />
+                    </label>
+                </div>
+                
+                <div class="eid-form-field threecol">
+                    <label>
+                        <span>@Html.EidResx("LastName")</span>
+                        <input type="text" data-bind="value: lastName" class="form-control" />
+                    </label>
+                </div>
+
+                <div class="eid-form-field threecol">
+                    <label>
+                        <span>@Html.EidResx("Email")</span>
+                        <input type="email" data-bind="value: email" class="form-control" />
+                    </label>
+                </div>
+            </div>
+            
+            <h2>Weitere Details (Zeile 2: 4-Spalten und Checkboxen)</h2>
+            <!-- fourcol Klasse für 4 Spalten (ca. 25% je Feld) -->
+            <div class="row">
+                <div class="eid-form-field fourcol">
+                    <label>
+                        <span>Telefon</span>
+                        <input type="text" data-bind="value: phone" class="form-control" />
+                    </label>
+                </div>
+                
+                <div class="eid-form-field fourcol">
+                    <label>
+                        <span>Abteilung</span>
+                        <select data-bind="value: department" class="form-control">
+                            <option>IT</option>
+                            <option>HR</option>
+                            <option>Sales</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="eid-form-field fourcol">
+                    <label>
+                        <span>Aktiv?</span>
+                        <!-- EmpowerID Checkbox Binding -->
+                        <input type="checkbox" data-bind="eidCheckBox: { checked: isActive }" />
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="actions" style="margin-top: 20px;">
+            <button class="btn btn-primary" data-bind="click: saveForm">Speichern</button>
+            <button class="btn btn-default" data-bind="click: cancelForm">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var formViewModel = {
+        firstName: ko.observable('Max'),
+        lastName: ko.observable('Mustermann'),
+        email: ko.observable('max.mustermann@example.com'),
+        phone: ko.observable('+49 123 45678'),
+        department: ko.observable('IT'),
+        isActive: ko.observable(true),
+        
+        saveForm: function() {
+            alert('Speichere: ' + this.firstName() + ' ' + this.lastName());
+        },
+        cancelForm: function() {
+            alert('Abgebrochen');
+        }
+    };
+    ko.applyBindings(formViewModel, document.querySelector('.eid-container'));
+</script>

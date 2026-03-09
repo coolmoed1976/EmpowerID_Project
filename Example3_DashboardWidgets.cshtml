@@ -1,0 +1,106 @@
+@{
+    ViewBag.Title = "Layout Beispiel 3: Dashboard und Widgets";
+}
+
+<style>
+    /* Optionale Custom-Styles für Dashboard-Kacheln, falls EmpowerID-Standardklassen nicht ausreichen */
+    .dashboard-widget {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .dashboard-widget h3 { margin-top: 0; color: #555; font-size: 16px; }
+    .dashboard-widget .metric { font-size: 36px; font-weight: bold; color: #005A9E; margin: 10px 0; }
+</style>
+
+<div class="eid-container">
+    <h1>@ViewBag.Title</h1>
+    <p>Ein Beispiel für ein Dashboard-Layout mit Bootstrap-ähnlichen Grid-Klassen (row, col-md-*) die in EmpowerID nutzbar sind.</p>
+
+    <!-- Top Row: Widgets -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="dashboard-widget">
+                <h3>Aktive Nutzer</h3>
+                <div class="metric" data-bind="text: activeUserCount">1,245</div>
+                <div class="text-success"><i class="fa fa-arrow-up"></i> +5% in 30 Tagen</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-widget">
+                <h3>Offene Anträge</h3>
+                <div class="metric" style="color: #D83B01;" data-bind="text: pendingRequests">42</div>
+                <button class="btn btn-sm btn-warning">Anträge prüfen</button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-widget">
+                <h3>Gesperrte Konten</h3>
+                <div class="metric" data-bind="text: lockedAccounts">7</div>
+                <a href="#">Details ansehen</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-widget">
+                <h3>System Status</h3>
+                <div class="metric" style="color: #107C10;"><i class="fa fa-check-circle"></i></div>
+                <div>Alle Services Online</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row: Splitted Content -->
+    <div class="row" style="margin-top: 20px;">
+        <!-- Left Side: Letzte Aktivitäten -->
+        <div class="col-md-6">
+            <div class="panel panel-default" style="border: 1px solid #ddd; border-radius: 4px;">
+                <div class="panel-heading" style="background: #f5f5f5; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">
+                    Letzte Genehmigungen
+                </div>
+                <div class="panel-body" style="padding: 15px;">
+                    <ul class="list-group" data-bind="foreach: recentApprovals" style="margin: 0; padding: 0; list-style: none;">
+                        <li class="list-group-item" style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <span class="badge" data-bind="text: Status" style="float: right; background: #5bc0de; color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 12px;"></span>
+                            <strong data-bind="text: User"></strong> - <span data-bind="text: Type"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Quick Actions -->
+        <div class="col-md-6">
+            <div class="panel panel-default" style="border: 1px solid #ddd; border-radius: 4px;">
+                <div class="panel-heading" style="background: #f5f5f5; padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">
+                    Schnellzugriff
+                </div>
+                <div class="panel-body" style="padding: 15px;">
+                    <div class="actions">
+                        <button class="btn btn-primary btn-block" style="width: 100%; margin-bottom: 10px;">Neuen Benutzer anlegen</button>
+                        <button class="btn btn-info btn-block" style="width: 100%; margin-bottom: 10px;">Passwort zurücksetzen</button>
+                        <button class="btn btn-default btn-block" style="width: 100%;">Berichte generieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var dashboardViewModel = {
+        activeUserCount: ko.observable(1245),
+        pendingRequests: ko.observable(42),
+        lockedAccounts: ko.observable(7),
+        
+        recentApprovals: ko.observableArray([
+            { User: 'Anna Schmidt', Type: 'VPN Zugriff', Status: 'Genehmigt' },
+            { User: 'Tom Müller', Type: 'SharePoint Admin', Status: 'Ausstehend' },
+            { User: 'Lisa Wagner', Type: 'Rolle: Manager', Status: 'Genehmigt' }
+        ])
+    };
+    ko.applyBindings(dashboardViewModel, document.querySelector('.eid-container'));
+</script>

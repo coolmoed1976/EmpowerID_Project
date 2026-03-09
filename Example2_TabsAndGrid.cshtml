@@ -1,0 +1,62 @@
+@{
+    ViewBag.Title = "Layout Beispiel 2: Tabs und Datengrids";
+    Guid pageGuid = new Guid("11111111-2222-3333-4444-555555555555");
+}
+
+<div class="eid-container">
+    <h1>@ViewBag.Title</h1>
+    <p>Tabs sind essentiell in EmpowerID, um viele Informationen (wie Details, Konten, Ressourcen) auf einer Seite zu strukturieren.</p>
+
+    <!-- EmpowerID Tab Container -->
+    <div class="eid-tabs">
+        
+        <!-- Tab 1: Statischer Inhalt (Inline) -->
+        <div data-bind="eidTab: { Title: 'Übersicht (Inline)' }">
+            <div style="padding: 15px;">
+                <h3>Willkommen in der Übersicht</h3>
+                <p>Dieser Tab enthält statisches HTML und Knockout-Bindings direkt auf der Seite, ohne nachzuladen.</p>
+                <div class="alert alert-info">
+                    Wichtige Information: Das System läuft einwandfrei.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Dynamisches Grid (Inline) -->
+        <div data-bind="eidTab: { Title: 'Aktive Rollen (Inline Grid)' }">
+            <div style="padding: 15px;">
+                <div data-bind="eidGrid: {
+                    title: 'Meine Rollen',
+                    DataSource: rolesDataSource,
+                    DisplayColumns: [
+                        { DataFieldName: 'RoleName', Title: 'Rollenname', Width: '300px' },
+                        { DataFieldName: 'AssignedDate', Title: 'Zuweisungsdatum', FormatType: 'Date', Width: '200px' }
+                    ],
+                    PageLength: 10
+                }"></div>
+            </div>
+        </div>
+
+        <!-- Tab 3: AJAX Loading (Lädt eine Partielle View) -->
+        <!-- Sehr nützlich für die Performance, da der Tab-Inhalt erst beim Klick vom Server geladen wird -->
+        <!-- Hinweis: Für diesen Tab müsste die referenzierte Partielle View existieren -->
+        <div data-bind="eidTab: { 
+            Title: 'Audit Logs (AJAX Load)',
+            Url: '@Url.Action("LoadPartial", "ViewOne", new { area = "Common", partial = "AuditLogsGridTemplate" })'
+        }"></div>
+        
+    </div>
+</div>
+
+<script>
+    var tabViewModel = {
+        // Mock-Datenquelle für das zweite Tab
+        rolesDataSource: new EidDataSource({
+            type: 'Local',
+            data: [
+                { RoleName: 'System Administrator', AssignedDate: '2025-01-15T10:00:00Z' },
+                { RoleName: 'Helpdesk Manager', AssignedDate: '2025-02-20T14:30:00Z' }
+            ]
+        })
+    };
+    ko.applyBindings(tabViewModel, document.querySelector('.eid-container'));
+</script>
