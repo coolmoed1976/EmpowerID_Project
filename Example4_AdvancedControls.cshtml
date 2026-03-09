@@ -1,0 +1,106 @@
+@{
+    ViewBag.Title = "Layout Beispiel 4: Erweiterte Eingabeelemente & Sichtbarkeiten";
+}
+
+<div class="eid-container">
+    <h1>@ViewBag.Title</h1>
+    <p>Hier zeigen wir komplexere Controls (z.B. Autocomplete) und wie man mit Knockout.js Bereiche dynamisch ein- und ausblendet.</p>
+
+    <!-- Ein einfaches Formular mit erweiterten Kontrollen -->
+    <div class="eid-form">
+        
+        <section class="basic-info">
+            <h2>Mitarbeiter-Zuweisung</h2>
+
+            <div class="row">
+                <!-- Autocomplete Feld für Personen-Suche -->
+                <div class="eid-form-field fourcol">
+                    <label>
+                        <span>Vorgesetzter (Autocomplete)</span>
+                        <div data-bind="eidAutocomplete: {
+                            value: managerID,
+                            componentName: 'PersonSearch',
+                            methodName: 'GetSearch',
+                            displayField: 'FriendlyName',
+                            otherFields: ['PersonID', 'FriendlyName', 'Login'],
+                            valueField: 'PersonID',
+                            placeholder: 'Bitte Namen tippen...'
+                        }"></div>
+                    </label>
+                </div>
+
+                <!-- Datumsauswahl -->
+                <div class="eid-form-field fourcol">
+                    <label>
+                        <span>Gültig ab (Datepicker)</span>
+                        <input type="date" class="form-control" data-bind="date: { 
+                            value: validFrom, 
+                            viewModelFormat: 'toUTCZeroTimeString'
+                        }" />
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dynamische Sichtbarkeit (Knockout if / visible) -->
+            <div class="row" style="margin-top: 15px;">
+                <div class="eid-form-field">
+                    <label>
+                        <input type="checkbox" data-bind="checked: needsHardware" />
+                        <strong>Mitarbeiter benötigt Hardware?</strong>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dieser Bereich wird nur gerendert, wenn needsHardware = true -->
+            <!-- Using ko if: removes the element from DOM completely when false -->
+            <!-- Using data-bind="visible: ..." applies display:none when false -->
+            <!-- ko if: needsHardware -->
+            <div class="hardware-selection" style="background:#f9f9f9; padding: 15px; border-left: 4px solid #005A9E; margin-top: 10px;">
+                <h3>Hardware-Optionen wählen</h3>
+                <div class="row">
+                    <div class="eid-form-field threecol">
+                        <label>
+                            <span>Gerätetyp</span>
+                            <select class="form-control" data-bind="options: deviceTypes, value: selectedDevice, optionsCaption: 'Bitte wählen...'"></select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+
+            <div class="actions" style="margin-top:20px;">
+                <button class="btn btn-primary" data-bind="click: submitRequest, enable: canSubmit">Antrag stellen</button>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<script>
+    var advancedViewModel = {
+        managerID: ko.observable(null),
+        validFrom: ko.observable(new Date()),
+        needsHardware: ko.observable(false),
+        
+        deviceTypes: ko.observableArray(['Laptop', 'Desktop PC', 'MacBook', 'Tablet']),
+        selectedDevice: ko.observable(),
+
+        // Ein Computed Observable überwacht andere Observables und ändert sich mit.
+        // Hier: Submit-Button ist nur aktiv, wenn ein Manager ausgewählt wurde, 
+        // und falls Hardware angefordert wurde, auch ein Gerätetyp gewählt wurde.
+        canSubmit: ko.pureComputed(function() {
+            var hasManager = this.managerID() != null;
+            if (this.needsHardware()) {
+                return hasManager && this.selectedDevice() != null;
+            }
+            return hasManager;
+        }, this),
+
+        submitRequest: function() {
+            alert('Antrag für ManagerID: ' + this.managerID() + ' gesendet!');
+        }
+    };
+    
+    // Anwenden der Bindings auf unser Modul
+    ko.applyBindings(advancedViewModel, document.querySelector('.eid-container'));
+</script>

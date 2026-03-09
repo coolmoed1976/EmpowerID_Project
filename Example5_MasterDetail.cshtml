@@ -1,0 +1,148 @@
+@{
+    ViewBag.Title = "Layout Beispiel 5: Master-Detail Ansicht";
+}
+
+<style>
+    /* Styling für die Master-Listen Elementauswahl */
+    .master-list-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+    }
+    .master-list-item:hover {
+        background-color: #f5f5f5;
+    }
+    .master-list-item.selected {
+        background-color: #0078D7;
+        color: white;
+    }
+    .detail-panel {
+        border-left: 1px solid #ddd;
+        padding-left: 20px;
+        min-height: 400px;
+    }
+</style>
+
+<div class="eid-container">
+    <h1>@ViewBag.Title</h1>
+    <p>Eine typische 2-Spalten-Ansicht: Links eine auswählbare Liste (Master), rechts die Details (Detail).</p>
+
+    <div class="row" style="margin-top: 20px;">
+        
+        <!-- MASTER VIEW (Linke Spalte) -->
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">System-Rollen</h3>
+                </div>
+                <div class="panel-body" style="padding: 0; max-height: 500px; overflow-y: auto;">
+                    <!-- Knockout foreach über unsere Array Liste -->
+                    <div data-bind="foreach: rolesList">
+                        <div class="master-list-item" data-bind="click: $parent.selectRole, css: { 'selected': $parent.selectedRole() && $parent.selectedRole().ID === ID }">
+                            <strong data-bind="text: Name"></strong>
+                            <div style="font-size: 11px; opacity: 0.8;">ID: <span data-bind="text: ID"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-default btn-block" data-bind="click: clearSelection">Auswahl aufheben</button>
+        </div>
+
+        <!-- DETAIL VIEW (Rechte Spalte) -->
+        <div class="col-md-8 detail-panel">
+            
+            <!-- Wenn Nichts ausgewählt ist -->
+            <!-- ko ifnot: selectedRole -->
+            <div class="text-center" style="margin-top: 100px; color: #999;">
+                <i class="fa fa-hand-o-left fa-3x"></i>
+                <h3>Bitte wählen Sie eine Rolle links in der Liste aus, um Details zu sehen.</h3>
+            </div>
+            <!-- /ko -->
+
+            <!-- Wenn Etwas ausgewählt ist -->
+            <!-- ko if: selectedRole -->
+            <div data-bind="with: selectedRole">
+                <h2>Rollen-Details: <span data-bind="text: Name"></span></h2>
+                <hr />
+                
+                <div class="eid-form">
+                    <div class="row">
+                        <div class="eid-form-field">
+                            <label>Rollen Name:</label>
+                            <input type="text" class="form-control" data-bind="value: Name" />
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="eid-form-field">
+                            <label>Beschreibung:</label>
+                            <textarea class="form-control" data-bind="value: Description" rows="4"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="eid-form-field">
+                            <label>Mitglieder-Anzahl:</label>
+                            <input type="text" class="form-control" data-bind="value: MemberCount" disabled="disabled" />
+                        </div>
+                    </div>
+                    
+                    <div class="actions" style="margin-top: 20px;">
+                        <button class="btn btn-success" data-bind="click: $parent.saveRole">Änderungen speichern</button>
+                        <button class="btn btn-danger" data-bind="click: $parent.deleteRole">Rolle löschen</button>
+                    </div>
+                </div>
+                
+                <!-- Ein Grid nur für die aktuell ausgewählte Rolle laden -->
+                <div style="margin-top: 30px;" data-bind="visible: ID > 0">
+                    <h4>Zugeordnete Berechtigungen</h4>
+                    <p class="text-muted">Hier könnte ein eidGrid nachgeladen werden, z.B. gefiltert nach ParentID: <span data-bind="text: ID"></span></p>
+                </div>
+            </div>
+            <!-- /ko -->
+            
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    var masterDetailViewModel = {
+        
+        // Master Liste
+        rolesList: ko.observableArray([
+            { ID: 101, Name: 'Helpdesk Analyst', Description: 'Kann Passwörter zurücksetzen und Basis-Support leisten.', MemberCount: 15 },
+            { ID: 102, Name: 'IT Administrator', Description: 'Voller Zugriff auf alle Server und Systeme.', MemberCount: 3 },
+            { ID: 103, Name: 'HR Manager', Description: 'Darf HR-Stammdaten von Personal editieren.', MemberCount: 5 },
+            { ID: 104, Name: 'Read-Only User', Description: 'Genereller Lesezugriff auf das Unternehmensverzeichnis.', MemberCount: 450 }
+        ]),
+        
+        // Aktuell ausgewähltes Element abbilden
+        selectedRole: ko.observable(null),
+
+        // Klick-Handler für Listenelemente
+        selectRole: function(roleData) {
+            // Wir weisen das geklickte Element dem selectedRole observable zu
+            masterDetailViewModel.selectedRole(roleData);
+        },
+
+        // Handler um die Auswahl wieder aufzuheben
+        clearSelection: function() {
+            masterDetailViewModel.selectedRole(null);
+        },
+
+        // Aktionen für das Detail-Formular
+        saveRole: function(roleData) {
+            alert("Speichere Änderungen für Rolle " + roleData.Name + " (ID: " + roleData.ID + ")");
+        },
+        deleteRole: function(roleData) {
+            if (confirm("Sind Sie sicher, dass Sie " + roleData.Name + " löschen möchten?")) {
+                masterDetailViewModel.rolesList.remove(roleData);
+                masterDetailViewModel.selectedRole(null);
+            }
+        }
+    };
+    
+    // ViewModel anbinden
+    ko.applyBindings(masterDetailViewModel, document.querySelector('.eid-container'));
+</script>
