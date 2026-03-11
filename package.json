@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "express": "^5.2.1",
     "module": "^2.0.0",
-    "msnodesqlv8": "^5.1.5"
+    "msnodesqlv8": "^5.1.5",
+    "mssql": "^12.2.0"
   }
 }

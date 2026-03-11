@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personen-Auskunft</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Datenbank-Auskunft</h1>
+            <p>Personenabfrage über Windows Authentication</p>
+        </header>
+
+        <main>
+            <div id="person-card" class="card">
+                <div class="loader" id="loader"></div>
+                <div id="data-container" class="hidden">
+                    <div class="field">
+                        <span class="label">Vorname</span>
+                        <h2 id="firstname">-</h2>
+                    </div>
+                    <div class="field">
+                        <span class="label">Nachname</span>
+                        <h2 id="lastname">-</h2>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>EmpowerID Development Support</p>
+        </footer>
+    </div>
+
+    <script>
+        async function fetchPerson() {
+            const dataContainer = document.getElementById('data-container');
+            const loader = document.getElementById('loader');
+            const firstNameEl = document.getElementById('firstname');
+            const lastNameEl = document.getElementById('lastname');
+
+            try {
+                const response = await fetch('/api/person');
+                if (!response.ok) throw new Error('Data fetch failed');
+                
+                const data = await response.json();
+                
+                firstNameEl.innerText = data.Firstname;
+                lastNameEl.innerText = data.Lastname;
+                
+                loader.classList.add('hidden');
+                dataContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error(error);
+                loader.innerText = "Fehler beim Laden der Daten. Bitte server.js Konfiguration prüfen.";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchPerson);
+    </script>
+</body>
+</html>
