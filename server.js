@@ -44,7 +44,7 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/person', async (req, res) => {
     console.log('--- Daten-Abfrage angefordert (ID 10) ---');
     try {
-        console.log('Verbinde...');
+        console.log('Verbinde mit:', config.connectionString);
         await sql.connect(config);
         console.log('Frage Daten ab...');
         const result = await sql.query`SELECT Firstname, Lastname FROM Person WHERE PersonID = 10`;

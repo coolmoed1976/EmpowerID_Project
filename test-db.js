@@ -8,7 +8,7 @@ const config = {
 
 async function test() {
     console.log('--- Test Script gestartet ---');
-    console.log('Versuche Verbindung zu:', config.server);
+    console.log('Versuche Verbindung mit String:', config.connectionString);
     try {
         await sql.connect(config);
         console.log('ERFOLG: Verbindung hergestellt!');
