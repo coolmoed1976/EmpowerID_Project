@@ -42,35 +42,43 @@
         const lastNameEl = document.getElementById('lastname');
 
         async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 8000 } = options;
+            const { timeout = 15000 } = options; // Erhöht auf 15 Sekunden
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(id);
-            return response;
+            try {
+                const response = await fetch(resource, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            } catch (e) {
+                clearTimeout(id);
+                if (e.name === 'AbortError') {
+                    throw new Error(`Zeitüberschreitung (Timeout) bei ${resource}. Der Server antwortet zu langsam.`);
+                }
+                throw e;
+            }
         }
 
         async function init() {
             try {
-                // 0. Server-Ping (läuft der Node-Prozess überhaupt?)
-                updateStatus("Prüfe Webserver...");
+                // 0. Server-Ping
+                updateStatus("Prüfe ob Webserver reagiert...");
                 const pingResponse = await fetchWithTimeout('/api/ping');
-                if (!pingResponse.ok) throw new Error("Server antwortet nicht korrekt.");
+                if (!pingResponse.ok) throw new Error("Der Node-Server läuft zwar, aber antwortet nicht korrekt.");
 
                 // 1. Health Check
-                updateStatus("Prüfe Datenbankverbindung (ID 1)...");
+                updateStatus("Versuche SQL-Verbindung aufzubauen (max. 15s)...");
                 const healthResponse = await fetchWithTimeout('/api/health');
                 const healthData = await healthResponse.json();
 
                 if (healthData.status !== 'connected') {
-                    throw new Error("Datenbank nicht erreichbar: " + healthData.message);
+                    throw new Error("SQL-Verbindung fehlgeschlagen: " + healthData.message);
                 }
 
                 // 2. Fetch Data
-                updateStatus("Lade Personendaten...");
+                updateStatus("Hole Daten aus Tabelle 'Person'...");
                 const response = await fetchWithTimeout('/api/person');
                 if (!response.ok) {
                     const errorText = await response.text();

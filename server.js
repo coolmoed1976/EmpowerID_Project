@@ -23,37 +23,44 @@ app.get('/api/ping', (req, res) => {
 
 // API Endpoint: Check DB Connection
 app.get('/api/health', async (req, res) => {
+    console.log('--- Health-Check angefordert ---');
     try {
-        console.log('Prüfe Datenbank-Erreichbarkeit...');
-        let pool = await sql.connect(config);
-        await pool.request().query('SELECT 1');
-        console.log('Datenbank ist erreichbar!');
-        res.json({ status: 'connected', message: 'Datenbankverbindung erfolgreich hergestellt.' });
+        console.log('Schritt 1: Versuche sql.connect mit Config...');
+        // Wir verwenden ein kurzes Timeout für den Verbindungsaufbau
+        await sql.connect(config);
+        console.log('Schritt 2: Verbindung aufgebaut. Sende Test-Abfrage...');
+        const result = await sql.query('SELECT 1 as test');
+        console.log('Schritt 3: Abfrage erfolgreich:', result.recordset);
+        res.json({ status: 'connected', message: 'Verbindung steht!' });
     } catch (err) {
-        console.error('Verbindungsprüfung fehlgeschlagen:', err.message);
+        console.error('!!! Fehler im Health-Check:', err.message);
         res.status(500).json({ status: 'error', message: err.message });
     } finally {
-        await sql.close();
+        console.log('Schritt 4: Schließe Verbindung (optional)...');
+        try { await sql.close(); } catch(e) {}
     }
 });
 
 // API Endpoint to get Person with ID 10
 app.get('/api/person', async (req, res) => {
+    console.log('--- Daten-Abfrage angefordert (ID 10) ---');
     try {
-        console.log('Rufe Person 10 ab...');
+        console.log('Verbinde...');
         await sql.connect(config);
+        console.log('Frage Daten ab...');
         const result = await sql.query`SELECT Firstname, Lastname FROM Person WHERE PersonID = 10`;
+        console.log('Daten erhalten:', result.recordset ? result.recordset.length : 0, 'Zeilen');
+        
         if (result.recordset && result.recordset.length > 0) {
             res.json(result.recordset[0]);
         } else {
-            console.log('Person mit ID 10 nicht gefunden.');
-            res.status(404).send('Person with ID 10 nicht gefunden.');
+            res.status(404).send('Person nicht gefunden.');
         }
     } catch (err) {
-        console.error('API Fehler:', err.message);
-        res.status(500).send(`Serverfehler: ${err.message}`);
+        console.error('!!! Fehler in /api/person:', err.message);
+        res.status(500).send(`Fehler: ${err.message}`);
     } finally {
-        await sql.close();
+        try { await sql.close(); } catch(e) {}
     }
 });
 
