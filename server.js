@@ -8,11 +8,17 @@ const port = 3000;
 // Middleware for static files
 app.use(express.static('public'));
 
-// SQL Server Configuration for Windows Authentication
+// SQL Server Configuration für Windows Authentication
+// WICHTIG: Wenn dein Server einen Backslash hat (z.B. .\SQLEXPRESS), 
+// musst du ZWEI Backslashes schreiben: '.\\SQLEXPRESS'
 const config = {
-    connectionString: 'Driver={SQL Server};Server=YOUR_SERVER_NAME;Database=YOUR_DATABASE_NAME;Trusted_Connection=yes;TrustServerCertificate=yes;',
+    server: 'YOUR_SERVER_NAME', // z.B. 'localhost' oder '.\\SQLEXPRESS'
+    database: 'YOUR_DATABASE_NAME',
+    driver: 'msnodesqlv8',
     options: {
-        connectTimeout: 5000 // 5 Sekunden Timeout
+        trustedConnection: true, 
+        trustServerCertificate: true,
+        connectTimeout: 5000 // 5 Sekunden
     }
 };
 
