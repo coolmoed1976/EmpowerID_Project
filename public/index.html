@@ -41,12 +41,28 @@
         const firstNameEl = document.getElementById('firstname');
         const lastNameEl = document.getElementById('lastname');
 
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 8000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
+        }
+
         async function init() {
-            updateStatus("Prüfe Datenbankverbindung...");
-            
             try {
+                // 0. Server-Ping (läuft der Node-Prozess überhaupt?)
+                updateStatus("Prüfe Webserver...");
+                const pingResponse = await fetchWithTimeout('/api/ping');
+                if (!pingResponse.ok) throw new Error("Server antwortet nicht korrekt.");
+
                 // 1. Health Check
-                const healthResponse = await fetch('/api/health');
+                updateStatus("Prüfe Datenbankverbindung (ID 1)...");
+                const healthResponse = await fetchWithTimeout('/api/health');
                 const healthData = await healthResponse.json();
 
                 if (healthData.status !== 'connected') {
@@ -55,7 +71,7 @@
 
                 // 2. Fetch Data
                 updateStatus("Lade Personendaten...");
-                const response = await fetch('/api/person');
+                const response = await fetchWithTimeout('/api/person');
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(errorText);

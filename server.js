@@ -10,9 +10,16 @@ app.use(express.static('public'));
 
 // SQL Server Configuration for Windows Authentication
 const config = {
-    // Try 'SQL Server' driver which was found on the system
     connectionString: 'Driver={SQL Server};Server=YOUR_SERVER_NAME;Database=YOUR_DATABASE_NAME;Trusted_Connection=yes;TrustServerCertificate=yes;',
+    options: {
+        connectTimeout: 5000 // 5 Sekunden Timeout
+    }
 };
+
+// Einfacher Ping-Test ohne Datenbank
+app.get('/api/ping', (req, res) => {
+    res.json({ status: 'ok', message: 'Webserver läuft!' });
+});
 
 // API Endpoint: Check DB Connection
 app.get('/api/health', async (req, res) => {
