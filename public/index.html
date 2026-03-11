@@ -36,15 +36,30 @@
     </div>
 
     <script>
-        async function fetchPerson() {
-            const dataContainer = document.getElementById('data-container');
-            const loader = document.getElementById('loader');
-            const firstNameEl = document.getElementById('firstname');
-            const lastNameEl = document.getElementById('lastname');
+        const loader = document.getElementById('loader');
+        const dataContainer = document.getElementById('data-container');
+        const firstNameEl = document.getElementById('firstname');
+        const lastNameEl = document.getElementById('lastname');
 
+        async function init() {
+            updateStatus("Prüfe Datenbankverbindung...");
+            
             try {
+                // 1. Health Check
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+
+                if (healthData.status !== 'connected') {
+                    throw new Error("Datenbank nicht erreichbar: " + healthData.message);
+                }
+
+                // 2. Fetch Data
+                updateStatus("Lade Personendaten...");
                 const response = await fetch('/api/person');
-                if (!response.ok) throw new Error('Data fetch failed');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
                 
                 const data = await response.json();
                 
@@ -55,11 +70,19 @@
                 dataContainer.classList.remove('hidden');
             } catch (error) {
                 console.error(error);
-                loader.innerText = "Fehler beim Laden der Daten. Bitte server.js Konfiguration prüfen.";
+                loader.innerHTML = `<span style="color: #ef4444; font-size: 0.9rem;">${error.message}</span>`;
+                loader.style.animation = "none";
+                loader.style.border = "none";
+                loader.style.width = "auto";
+                loader.style.height = "auto";
             }
         }
 
-        document.addEventListener('DOMContentLoaded', fetchPerson);
+        function updateStatus(msg) {
+            loader.innerHTML = `<div class="spinner"></div><p style="font-size: 0.8rem; margin-top: 10px;">${msg}</p>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
