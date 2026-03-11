@@ -1,16 +1,9 @@
 const sql = require('mssql/msnodesqlv8');
 
-// Nutze die gleichen Einstellungen wie in server.js
-// BITTE PASSEN SIE DIESE WERTE HIER KURZ AN UM DEN TEST ZU LAUFEN
 const config = {
-    server: 'YOUR_SERVER_NAME', 
-    database: 'YOUR_DATABASE_NAME',
-    driver: 'msnodesqlv8',
-    options: {
-        trustedConnection: true, 
-        trustServerCertificate: true,
-        connectTimeout: 5000
-    }
+    // Wenn 'msnodesqlv8' als Driver geladen wird, nutzt er bevorzugt den ConnectionString.
+    // 'SQL Server' ist der Name, den dein System für den Standard-ODBC-Treiber ausgibt.
+    connectionString: 'Driver={SQL Server};Server=YOUR_SERVER_NAME;Database=YOUR_DATABASE_NAME;Trusted_Connection=Yes;TrustServerCertificate=Yes;'
 };
 
 async function test() {

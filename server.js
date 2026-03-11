@@ -12,14 +12,7 @@ app.use(express.static('public'));
 // WICHTIG: Wenn dein Server einen Backslash hat (z.B. .\SQLEXPRESS), 
 // musst du ZWEI Backslashes schreiben: '.\\SQLEXPRESS'
 const config = {
-    server: 'YOUR_SERVER_NAME', // z.B. 'localhost' oder '.\\SQLEXPRESS'
-    database: 'YOUR_DATABASE_NAME',
-    driver: 'msnodesqlv8',
-    options: {
-        trustedConnection: true, 
-        trustServerCertificate: true,
-        connectTimeout: 5000 // 5 Sekunden
-    }
+    connectionString: 'Driver={SQL Server};Server=YOUR_SERVER_NAME;Database=YOUR_DATABASE_NAME;Trusted_Connection=Yes;TrustServerCertificate=Yes;'
 };
 
 // Einfacher Ping-Test ohne Datenbank
