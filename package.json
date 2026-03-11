@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "module": "^2.0.0",
+    "msnodesqlv8": "^5.1.5"
+  }
+}
